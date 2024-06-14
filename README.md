@@ -16,3 +16,4 @@ A 2d game that allows to make a zk proof after each game round in order to prove
 - [Dojo Slot docs](https://book.dojoengine.org/toolchain/slot) 
 - [Awesome dojo repo](https://github.com/dojoengine/awesome-dojo?tab=readme-ov-file) (contains list of games)
 - [Cartridge Controller](https://github.com/cartridge-gg/controller) (for accessing extra 2,500$ prize in Cartridge hackaton prize)
+- Bevy Engine: [bevy 0.11 playlist](https://www.youtube.com/playlist?list=PLT_D88-MTFOMLnBeTJJn9LhDON_fvHi6u), [bevy 0.12 playlist](https://www.youtube.com/playlist?list=PL2wAo2qwCxGDp9fzBOTy_kpUTSwM1iWWd)
