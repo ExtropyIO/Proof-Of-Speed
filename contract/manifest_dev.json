@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x4500f0488753027421fbbee2c4bad7f408a9d77de4d6459a00f7ed588a8cf35",
-      "class_hash": "0x3a78b2d23bbd2f2caff28a4c095c571e5c701ae59fb0f6bef385a6c5c4cda9",
+      "address": "0x4b202a4034b1155f0eb723a8725040541f395f55347d2eb7f225e5983a88cf3",
+      "class_hash": "0x46fd3a51fd4dc329abdb3ca9fdb1656e1b2ba8791b29cd8d1ed844f9cc09bc5",
       "abi": [
         {
           "type": "impl",
@@ -1337,6 +1337,34 @@
           ]
         },
         {
+          "type": "struct",
+          "name": "dojo_starter::models::Vec2",
+          "members": [
+            {
+              "name": "x",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "y",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "dojo_starter::systems::actions::IActions",
           "items": [
@@ -1357,6 +1385,22 @@
                 }
               ],
               "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "place_treasure",
+              "inputs": [
+                {
+                  "name": "new_position",
+                  "type": "dojo_starter::models::Vec2"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
               "state_mutability": "external"
             }
           ]
@@ -1482,6 +1526,7 @@
       "systems": [
         "spawn",
         "move",
+        "place_treasure",
         "upgrade"
       ]
     }

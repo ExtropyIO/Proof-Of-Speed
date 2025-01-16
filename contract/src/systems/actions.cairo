@@ -1,23 +1,25 @@
-use dojo_starter::models::{Direction, Position, Grid};
-use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game};
+use dojo_starter::models::{Direction, Position, Grid, Vec2, Vec2Trait};
+use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game, update_world};
 
 
 #[starknet::interface]
 trait IActions<T> {
     fn spawn(ref self: T);
     fn move(ref self: T, direction: Direction);
+    fn place_treasure(ref self: T, new_position: Vec2) -> bool;
 }
 
 #[dojo::contract]
 pub mod actions {
-    use super::{IActions, Direction, Position, next_position};
     use starknet::{ContractAddress, get_caller_address, get_block_number};
+    use starknet::contract_address_const;
     use dojo_starter::models::{Vec2, Moves, DirectionsAvailable, TreasurePosition, Grid};
 
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
 
-    use super::{start_game, move_player, win_game};
+    use super::{IActions, Direction, Position, next_position};
+    use super::{start_game, move_player, win_game, Vec2Trait, update_world};
 
     #[derive(Copy, Drop, Serde)]
     struct Wall {
@@ -88,7 +90,7 @@ pub mod actions {
         wall_positions
     }
 
-    fn is_wall(walls: Array<Vec2>, position: Vec2) -> bool {
+    fn is_wall(walls: @Array<Vec2>, position: Vec2) -> bool {
         let mut i = 0;
         loop {
             if i >= walls.len() {
@@ -111,12 +113,19 @@ pub mod actions {
             let position: Position = world.read_model(player);
 
             let new_position_vector = Vec2 { x: position.vec.x + 10, y: position.vec.y + 10 };
-            let new_treasure_position_vector = Vec2 { x: 16, y: 16 };
+
+            let treasure_position: TreasurePosition = world.read_model(player);
+            let treasure_position_vector = if treasure_position.vec.x == 0_u32
+                && treasure_position.vec.y == 0_u32 {
+                Vec2 {
+                    x: 16, y: 16
+                } // Default position if treasure position was not placed = (0,0)
+            } else {
+                treasure_position.vec
+            };
 
             let new_position = Position { player, vec: new_position_vector };
-            let new_treasure_position = TreasurePosition {
-                player, vec: new_treasure_position_vector
-            };
+            let new_treasure_position = TreasurePosition { player, vec: treasure_position_vector };
 
             let grid_width: u32 = 15;
             let grid_height: u32 = 15;
@@ -127,7 +136,7 @@ pub mod actions {
                 player,
                 width: grid_width,
                 height: grid_height,
-                treasure_position: new_treasure_position_vector,
+                treasure_position: treasure_position_vector,
                 player_initial_position: new_position_vector,
                 starting_block: starknet::get_block_number(),
                 walls,
@@ -163,7 +172,7 @@ pub mod actions {
 
             let next = next_position(position, direction);
 
-            if !is_wall(grid.walls, next.vec) {
+            if !is_wall(@grid.walls, next.vec) {
                 // Only update position if there's no wall
                 world.write_model(@next);
 
@@ -205,6 +214,50 @@ pub mod actions {
 
                 world.write_model(@moves);
             }
+        }
+
+        fn place_treasure(ref self: ContractState, new_position: Vec2) -> bool {
+            let mut world = self.world_default();
+            // let player = get_caller_address();
+            let player: ContractAddress = contract_address_const::<
+                0x4a655ae081a867b4a84815b858451807caaf4165b70bff22a7a9673397b3d1f
+            >();
+
+            let grid: Grid = world.read_model(player);
+            let old_treasure_position: Vec2 = grid.treasure_position;
+
+            assert!(grid.player == player, "Player does not match");
+
+            let spawn_position = grid.player_initial_position;
+
+            if !new_position.is_valid_treasure_position(spawn_position, 5_u32) {
+                assert!(false, "Invalid treasure position");
+                return false;
+            }
+
+            if is_wall(@grid.walls, new_position) {
+                assert!(false, "Wall at treasure position");
+                return false;
+            }
+
+            let new_treasure_position = TreasurePosition { player, vec: new_position };
+
+            world.write_model(@new_treasure_position);
+
+            update_world(ref world, player, old_treasure_position, new_treasure_position.vec);
+
+            let new_grid = Grid {
+                player,
+                width: grid.width,
+                height: grid.height,
+                treasure_position: new_position,
+                player_initial_position: grid.player_initial_position,
+                starting_block: grid.starting_block,
+                walls: grid.walls,
+            };
+            world.write_model(@new_grid);
+
+            true
         }
     }
 
