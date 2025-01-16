@@ -1,2 +1,11 @@
-
 .DS_Store
+
+/tmp
+
+/client/node_modules
+
+/contract/.github
+/contract/.vscode
+/contract/tmp
+
+/contract/.env.sepolia

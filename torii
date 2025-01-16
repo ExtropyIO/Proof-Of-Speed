@@ -1,0 +1,25 @@
+#!/bin/bash
+
+WALLET="0x0525177c8afe8680d7ad1da30ca183e482cfcd6404c1e09d83fd3fa2994fd4b8"
+
+BASE_CMD="torii -w $WALLET --http.cors_origins '*'"
+
+# example: `sh torii persistent "dojo_starter-Moved dojo_starter-PlayerSpawned dojo_starter-TestInternalEvent dojo_starter-StartGame"`
+
+if [ "$1" = "persistent" ]; then
+    # remove tmp folder to avoid `waitForEntityChange: Timeout of 6000ms` error
+    rm -rf ./tmp
+    
+    if [ -n "$2" ]; then
+        EVENTS_FLAGS=""
+        for event in $2; do
+            EVENTS_FLAGS="$EVENTS_FLAGS --events.historical $event"
+        done
+        
+        torii --db-dir ./tmp/indexer.db -w $WALLET --http.cors_origins '*' $EVENTS_FLAGS
+    else
+        torii --db-dir ./tmp/indexer.db -w $WALLET --http.cors_origins '*'
+    fi
+else
+    $BASE_CMD
+fi
