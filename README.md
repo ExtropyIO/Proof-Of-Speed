@@ -24,15 +24,3 @@
     ```shell
     sh torii persistent "dojo_starter-Moved dojo_starter-PlayerSpawned dojo_starter-StartGame"
     ```
-
-
-
-
-## Resources:
-- [Dojo](https://github.com/dojoengine/dojo)
-- [Madara](https://github.com/keep-starknet-strange/madara) 
-- [Awesome dojo repo](https://github.com/dojoengine/awesome-dojo?tab=readme-ov-file) 
- 
- 
-
-
