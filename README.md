@@ -24,3 +24,5 @@
     ```shell
     sh torii persistent "dojo_starter-Moved dojo_starter-PlayerSpawned dojo_starter-StartGame"
     ```
+7. Launch the browser and navigate to `http://localhost:5173/`
+8. Press the + button to start the game and then the arrows to move the player.
