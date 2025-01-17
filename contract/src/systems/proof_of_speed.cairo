@@ -36,11 +36,13 @@ pub mod proof_of_speed {
 
     #[derive(Copy, Drop, Serde)]
     #[dojo::event]
-    pub struct UpdateWorld<T> {
+    pub struct UpdateWorld {
         #[key]
         pub player: ContractAddress,
-        pub state: T,
-        pub state_update: T,
+        pub current_state: felt252,
+        pub new_state: felt252,
+        pub timestamp: u64,
+        pub block_number: u64,
     }
 
     fn start_game(ref world: WorldStorage, player: ContractAddress, grid: Grid) {
@@ -64,9 +66,13 @@ pub mod proof_of_speed {
         world.emit_event(@WinGame { player, timestamp, block_number });
     }
 
-    fn update_world<T, impl TCopy: Copy<T>, impl TDrop: Drop<T>, impl TSerde: Serde<T>>(
-        ref world: WorldStorage, player: ContractAddress, state: T, state_update: T
+    fn update_world(
+        ref world: WorldStorage, player: ContractAddress, current_state: felt252, new_state: felt252
     ) {
-        world.emit_event(@UpdateWorld::<T> { player, state, state_update });
+        let timestamp = get_block_number();
+        let block_number = get_block_number();
+
+        world
+            .emit_event(@UpdateWorld { player, current_state, new_state, timestamp, block_number });
     }
 }

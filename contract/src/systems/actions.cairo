@@ -244,7 +244,14 @@ pub mod actions {
 
             world.write_model(@new_treasure_position);
 
-            update_world(ref world, player, old_treasure_position, new_treasure_position.vec);
+            let old_pos_hash = poseidon::poseidon_hash_span(
+                array![old_treasure_position.x.into(), old_treasure_position.y.into()].span()
+            );
+            let new_pos_hash = poseidon::poseidon_hash_span(
+                array![new_position.x.into(), new_position.y.into()].span()
+            );
+
+            update_world(ref world, player, old_pos_hash, new_pos_hash);
 
             let new_grid = Grid {
                 player,
