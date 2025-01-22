@@ -18,8 +18,8 @@ pub mod actions {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
 
-    use super::{IActions, Direction, Position, next_position};
-    use super::{start_game, move_player, win_game, Vec2Trait, update_world};
+    use super::{IActions, Direction, Position, next_position, Vec2Trait};
+    use super::{start_game, move_player, win_game, update_world};
 
     #[derive(Copy, Drop, Serde)]
     struct Wall {
@@ -28,63 +28,34 @@ pub mod actions {
         is_horizontal: bool,
     }
 
-    fn generate_walls(
-        grid_width: u32, grid_height: u32, num_walls: u32, total_length: u32
-    ) -> Array<Vec2> {
+    fn generate_walls(grid_width: u32, grid_height: u32, block_number: u64) -> Array<Vec2> {
         let mut wall_positions = ArrayTrait::new();
 
-        let avg_length = total_length / num_walls;
+        let difficulty: u32 = (block_number % 10).try_into().unwrap();
+        let block_mod: u32 = (block_number % 100).try_into().unwrap();
 
-        let mut remaining_length = total_length;
-        let mut walls_created = 0;
-
+        let mut y = 1;
         loop {
-            if walls_created >= num_walls {
+            if y >= grid_height {
                 break;
             }
 
-            let is_horizontal = walls_created % 2 == 0;
+            if y % 2 == 1 {
+                let mut x = 0;
+                loop {
+                    if x >= grid_width {
+                        break;
+                    }
 
-            let mut wall_length = if walls_created == num_walls - 1 {
-                remaining_length
-            } else {
-                avg_length
-            };
+                    if (x + y + (block_mod)) % 10 <= difficulty {
+                        wall_positions.append(Vec2 { x, y });
+                    }
 
-            // I would need proper randomness here
-            let start_x = if is_horizontal {
-                grid_width - wall_length
-            } else {
-                grid_width - 1
-            };
+                    x += 1;
+                };
+            }
 
-            let start_y = if is_horizontal {
-                grid_height - 1
-            } else {
-                grid_height - wall_length
-            };
-
-            let mut current_pos = Vec2 { x: start_x, y: start_y };
-            let mut length_added = 0;
-
-            loop {
-                if length_added >= wall_length {
-                    break;
-                }
-
-                wall_positions.append(current_pos);
-
-                if is_horizontal {
-                    current_pos.x += 1;
-                } else {
-                    current_pos.y += 1;
-                }
-
-                length_added += 1;
-            };
-
-            remaining_length -= wall_length;
-            walls_created += 1;
+            y += 1;
         };
 
         wall_positions
@@ -112,13 +83,13 @@ pub mod actions {
             let player = get_caller_address();
             let position: Position = world.read_model(player);
 
-            let new_position_vector = Vec2 { x: position.vec.x + 10, y: position.vec.y + 10 };
+            let new_position_vector = Vec2 { x: 0, y: 0 };
 
             let treasure_position: TreasurePosition = world.read_model(player);
             let treasure_position_vector = if treasure_position.vec.x == 0_u32
                 && treasure_position.vec.y == 0_u32 {
                 Vec2 {
-                    x: 16, y: 16
+                    x: 14, y: 14
                 } // Default position if treasure position was not placed = (0,0)
             } else {
                 treasure_position.vec
@@ -130,7 +101,8 @@ pub mod actions {
             let grid_width: u32 = 15;
             let grid_height: u32 = 15;
 
-            let walls = generate_walls(grid_width, grid_height, 10, 30);
+            let block_number = starknet::get_block_number();
+            let walls = generate_walls(grid_width, grid_height, block_number);
 
             let grid = Grid {
                 player,
@@ -138,7 +110,7 @@ pub mod actions {
                 height: grid_height,
                 treasure_position: treasure_position_vector,
                 player_initial_position: new_position_vector,
-                starting_block: starknet::get_block_number(),
+                starting_block: block_number,
                 walls,
             };
 
@@ -153,12 +125,6 @@ pub mod actions {
             world.write_model(@moves);
 
             start_game(ref world, player, grid);
-            // world
-        //     .emit_event(
-        //         @PlayerSpawned {
-        //             player, timestamp: starknet::get_block_timestamp(), grid: grid
-        //         }
-        //     );
         }
 
         fn move(ref self: ContractState, direction: Direction) {
@@ -181,31 +147,10 @@ pub mod actions {
                 world.write_model(@moves);
 
                 move_player(ref world, player, direction);
-                // world.emit_event(@Moved { player, direction });
 
                 if (next.vec.x == treasure_position.vec.x
                     && next.vec.y == treasure_position.vec.y) {
-                    let current_block = starknet::get_block_number();
-
-                    if (current_block - grid.starting_block < 10_u64) { // world
-                    //     .emit_event(
-                    //         @Warning__FastWin {
-                    //             player,
-                    //             timestamp: starknet::get_block_timestamp(),
-                    //             block_number: current_block,
-                    //         }
-                    //     );
-                    }
-
                     win_game(ref world, player);
-                    //world
-                //    .emit_event(
-                //        @TreasureFound {
-                //            player,
-                //            treasure_position: treasure_position.vec,
-                //            timestamp: starknet::get_block_timestamp()
-                //        }
-                //    );
                 }
             } else {
                 // still count the move
