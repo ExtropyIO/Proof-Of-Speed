@@ -1,3 +1,7 @@
+use array::Array;
+use array::ArrayTrait;
+use poseidon::poseidon_hash_span;
+use traits::Into;
 use dojo_starter::models::{Direction, Position, Grid, Vec2, Vec2Trait};
 use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game, update_world};
 
@@ -18,7 +22,7 @@ pub mod actions {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
 
-    use super::{IActions, Direction, Position, next_position, Vec2Trait};
+    use super::{IActions, Direction, Position, next_position, Vec2Trait, hash_vec2_array};
     use super::{start_game, move_player, win_game, update_world};
 
     #[derive(Copy, Drop, Serde)]
@@ -81,7 +85,7 @@ pub mod actions {
             let mut world = self.world_default();
 
             let player = get_caller_address();
-            let position: Position = world.read_model(player);
+            let old_grid: Grid = world.read_model(player);
 
             let new_position_vector = Vec2 { x: 0, y: 0 };
 
@@ -102,6 +106,7 @@ pub mod actions {
             let grid_height: u32 = 15;
 
             let block_number = starknet::get_block_number();
+
             let walls = generate_walls(grid_width, grid_height, block_number);
 
             let grid = Grid {
@@ -124,7 +129,16 @@ pub mod actions {
 
             world.write_model(@moves);
 
-            start_game(ref world, player, grid);
+            start_game(
+                ref world,
+                player,
+                entity_positions: array![new_position_vector, treasure_position_vector]
+            );
+
+            let old_walls_hash = hash_vec2_array(old_grid.walls);
+            let new_walls_hash = hash_vec2_array(grid.walls);
+
+            update_world(ref world, player, old_walls_hash, new_walls_hash);
         }
 
         fn move(ref self: ContractState, direction: Direction) {
@@ -232,4 +246,25 @@ fn next_position(mut position: Position, direction: Direction) -> Position {
         Direction::Down => { position.vec.y += 1; },
     };
     position
+}
+
+fn hash_vec2_array(arr: Array<Vec2>) -> felt252 {
+    let mut elements: Array<felt252> = ArrayTrait::new();
+
+    elements.append(arr.len().into());
+
+    let arr_span = arr.span();
+    let mut i: usize = 0;
+    loop {
+        if i >= arr_span.len() {
+            break;
+        }
+
+        let vec2 = *arr_span.at(i);
+        elements.append(vec2.x.into());
+        elements.append(vec2.y.into());
+        i += 1;
+    };
+
+    poseidon_hash_span(elements.span())
 }
