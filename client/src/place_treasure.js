@@ -2,14 +2,12 @@ import { Account, Contract, RpcProvider } from "starknet";
 
 // from Katana:
 // | Account address |  0x13d9ee239f33fea4f8785b9e3870ade909e20a9599ae7cd62c1c292b73af1b7
-// | Private key     |  0x1c9053c053edf324aec366a34c6901b1095b07af69495bffec7d7fe21effb1b
 // | Public key      |  0x4c339f18b9d1b95b64a6d378abd1480b2e0d5d5bd33cd0828cbce4d65c27284
 
 async function placeTreasure() {
   const provider = new RpcProvider({ nodeUrl: `http://0.0.0.0:5050` });
 
-  const privateKey0 =
-    "0x1c9053c053edf324aec366a34c6901b1095b07af69495bffec7d7fe21effb1b";
+  // const privateKey0 =
   const account0Address =
     "0x13d9ee239f33fea4f8785b9e3870ade909e20a9599ae7cd62c1c292b73af1b7";
 
