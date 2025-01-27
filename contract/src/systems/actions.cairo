@@ -2,6 +2,7 @@ use array::Array;
 use array::ArrayTrait;
 use poseidon::poseidon_hash_span;
 use traits::Into;
+use starknet::ContractAddress;
 use dojo_starter::models::{Direction, Position, Grid, Vec2, Vec2Trait};
 use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game, update_world};
 
@@ -10,7 +11,7 @@ use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game, u
 trait IActions<T> {
     fn spawn(ref self: T);
     fn move(ref self: T, direction: Direction);
-    fn place_treasure(ref self: T, new_position: Vec2) -> bool;
+    fn place_treasure(ref self: T, player: ContractAddress, new_position: Vec2) -> bool;
 }
 
 #[dojo::contract]
@@ -175,53 +176,26 @@ pub mod actions {
             }
         }
 
-        fn place_treasure(ref self: ContractState, new_position: Vec2) -> bool {
+        fn place_treasure(
+            ref self: ContractState, player: ContractAddress, new_position: Vec2
+        ) -> bool {
             let mut world = self.world_default();
-            // let player = get_caller_address();
-            let player: ContractAddress = contract_address_const::<
-                0x4a655ae081a867b4a84815b858451807caaf4165b70bff22a7a9673397b3d1f
-            >();
 
-            let grid: Grid = world.read_model(player);
-            let old_treasure_position: Vec2 = grid.treasure_position;
+            let old_treasure_position: TreasurePosition = world.read_model(player);
 
-            assert!(grid.player == player, "Player does not match");
+            let mut old_vec2_array = ArrayTrait::new();
+            old_vec2_array.append(old_treasure_position.vec);
+            let old_treasure_hash = hash_vec2_array(old_vec2_array);
 
-            let spawn_position = grid.player_initial_position;
+            let treasure_position = TreasurePosition { player: player, vec: new_position };
 
-            if !new_position.is_valid_treasure_position(spawn_position, 5_u32) {
-                assert!(false, "Invalid treasure position");
-                return false;
-            }
+            world.write_model(@treasure_position);
 
-            if is_wall(@grid.walls, new_position) {
-                assert!(false, "Wall at treasure position");
-                return false;
-            }
+            let mut new_vec2_array = ArrayTrait::new();
+            new_vec2_array.append(treasure_position.vec);
+            let new_treasure_hash = hash_vec2_array(new_vec2_array);
 
-            let new_treasure_position = TreasurePosition { player, vec: new_position };
-
-            world.write_model(@new_treasure_position);
-
-            let old_pos_hash = poseidon::poseidon_hash_span(
-                array![old_treasure_position.x.into(), old_treasure_position.y.into()].span()
-            );
-            let new_pos_hash = poseidon::poseidon_hash_span(
-                array![new_position.x.into(), new_position.y.into()].span()
-            );
-
-            update_world(ref world, player, old_pos_hash, new_pos_hash);
-
-            let new_grid = Grid {
-                player,
-                width: grid.width,
-                height: grid.height,
-                treasure_position: new_position,
-                player_initial_position: grid.player_initial_position,
-                starting_block: grid.starting_block,
-                walls: grid.walls,
-            };
-            world.write_model(@new_grid);
+            update_world(ref world, player, old_treasure_hash, new_treasure_hash);
 
             true
         }

@@ -109,11 +109,7 @@ function App({
             //"dojo_starter-Warning__FastWin": Warning__FastWin;
           }
         ) => {
-          console.log("-- here 11");
-          console.log(resp);
           if (resp !== "0x0") {
-            console.log("-- here");
-
             const startGame =
               model["dojo_starter-StartGame" as keyof typeof model];
             console.log(startGame);
@@ -179,6 +175,9 @@ function App({
           )
           .build(),
         callback: (response) => {
+          console.log("-- fetching updates");
+          console.log(response);
+
           if (response.error) {
             console.error("Error setting up entity sync:", response.error);
           } else if (response.data && response.data[0].entityId !== "0x0") {

@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x2e523b7dd8a6b1f3a939ee8c6220d940fa39fc0e168e82b3cd86907a405d437",
-      "class_hash": "0x7db82d3f4af30a6f8b9f72ed9c9279b8c66c9ce0569966fdee65e8c38653b4b",
+      "address": "0x3c41f342135b461eec164a96ea91556caf65e4fb565faa73fc1ae46a491df3f",
+      "class_hash": "0x2401f1ff0c70dc464ccf07ea11b8610c83d4540c6b99f5112a771bf788c3fe0",
       "abi": [
         {
           "type": "impl",
@@ -1391,6 +1391,10 @@
               "type": "function",
               "name": "place_treasure",
               "inputs": [
+                {
+                  "name": "player",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
                 {
                   "name": "new_position",
                   "type": "dojo_starter::models::Vec2"
