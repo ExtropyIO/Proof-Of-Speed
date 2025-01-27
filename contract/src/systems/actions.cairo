@@ -181,6 +181,15 @@ pub mod actions {
         ) -> bool {
             let mut world = self.world_default();
 
+            let grid: Grid = world.read_model(player);
+
+            let min_distance: u32 = 10;
+
+            if !new_position
+                .is_valid_treasure_position(grid.player_initial_position, min_distance) {
+                return false;
+            }
+
             let old_treasure_position: TreasurePosition = world.read_model(player);
 
             let mut old_vec2_array = ArrayTrait::new();
