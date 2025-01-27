@@ -9,8 +9,8 @@ import {
   Schema,
   WinGame,
   StartGame,
-  Warning__FastWin,
   Moved,
+  UpdateWorld,
 } from "./bindings.ts";
 import { useDojo } from "./useDojo.tsx";
 import useModel from "./useModel.tsx";
@@ -18,13 +18,6 @@ import { useSystemCalls } from "./useSystemCalls.ts";
 import { Grid } from "./components/Grid.tsx";
 import { ToriiClient } from "@dojoengine/torii-client";
 import { convertHexToDate } from "./aux.ts";
-
-interface EntityProperty {
-  key: boolean;
-  type: string;
-  type_name: string;
-  value: string;
-}
 
 /**
  * Global store for managing Dojo game state.
@@ -92,9 +85,8 @@ function App({
                 "dojo_starter-StartGame",
                 "dojo_starter-WinGame",
                 "dojo_starter-Moved",
-                // "dojo_starter-Warning__FastWin",
+                "dojo_starter-UpdateWorld",
               ],
-              // models: [],
               pattern_matching: "FixedLen",
             },
           },
@@ -103,20 +95,20 @@ function App({
         (
           resp: any,
           model: {
-            // "dojo_starter-WinGame": WinGame;
-            // "dojo_starter-StartGame": StartGame;
-            // "dojo_starter-Moved": Moved;
-            //"dojo_starter-Warning__FastWin": Warning__FastWin;
+            "dojo_starter-WinGame": WinGame;
+            "dojo_starter-StartGame": StartGame;
+            "dojo_starter-Moved": Moved;
+            "dojo_starter-UpdateWorld": UpdateWorld;
           }
         ) => {
           if (resp !== "0x0") {
             const startGame =
               model["dojo_starter-StartGame" as keyof typeof model];
-            console.log(startGame);
             const playerFoundTreasure =
               model["dojo_starter-WinGame" as keyof typeof model];
-            console.log(playerFoundTreasure);
-            // const playerFastWin = model["dojo_starter-Warning__FastWin"];
+            const updateWorld =
+              model["dojo_starter-UpdateWorld" as keyof typeof model];
+            const moved = model["dojo_starter-Moved" as keyof typeof model];
 
             if (startGame) {
               const { player, timestamp } = startGame;
@@ -137,6 +129,24 @@ function App({
 
               console.log(timestampValue);
               setTimestampEnd(timestampValue);
+            }
+
+            if (updateWorld) {
+              // const {
+              //   player,
+              //   current_state,
+              //   new_state,
+              //   timestamp,
+              //   block_number,
+              // } = updateWorld;
+
+              console.log("-- update world");
+            }
+
+            if (moved) {
+              // const { player, direction, timestamp, block_number } = moved;
+
+              console.log("-- moved");
             }
           }
         }
@@ -175,9 +185,6 @@ function App({
           )
           .build(),
         callback: (response) => {
-          console.log("-- fetching updates");
-          console.log(response);
-
           if (response.error) {
             console.error("Error setting up entity sync:", response.error);
           } else if (response.data && response.data[0].entityId !== "0x0") {
@@ -188,7 +195,6 @@ function App({
 
       unsubscribe = () => {
         subscription.cancel();
-        // winSubscription.cancel();
       };
     };
 

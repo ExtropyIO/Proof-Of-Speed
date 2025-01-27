@@ -37,13 +37,6 @@ interface DirectionsAvailable {
   directions: Direction[];
 }
 
-interface Warning__FastWin {
-  fieldOrder: string[];
-  player: string;
-  timestamp: number;
-  block_number: number;
-}
-
 interface StartGame {
   fieldOrder: string[];
   player: string;
@@ -63,6 +56,15 @@ interface Moved {
   fieldOrder: string[];
   player: string;
   direction: Direction;
+  timestamp: number;
+  block_number: number;
+}
+
+interface UpdateWorld {
+  fieldOrder: string[];
+  player: string;
+  current_state: string;
+  new_state: string;
   timestamp: number;
   block_number: number;
 }
@@ -115,8 +117,8 @@ type Schema = {
     DirectionsAvailable: DirectionsAvailable;
     Position: Position;
     WinGame: WinGame;
+    UpdateWorld: UpdateWorld;
     StartGame: StartGame;
-    Warning__FastWin: Warning__FastWin;
     TreasurePosition: TreasurePosition;
     Moved: Moved;
     Grid: Grid;
@@ -131,6 +133,7 @@ enum Models {
   DirectionsAvailable = "dojo_starter-DirectionsAvailable",
   Position = "dojo_starter-Position",
   WinGame = "dojo_starter-WinGame",
+  UpdateWorld = "dojo_starter-UpdateWorld",
   TreasurePosition = "dojo_starter-TreasurePosition",
   StartGame = "dojo_starter-StartGame",
   Grid = "dojo_starter-Grid",
@@ -169,6 +172,20 @@ const schema: Schema = {
       timestamp: 0,
       block_number: 0,
     },
+    UpdateWorld: {
+      fieldOrder: [
+        "player",
+        "current_state",
+        "new_state",
+        "timestamp",
+        "block_number",
+      ],
+      player: "",
+      current_state: "",
+      new_state: "",
+      timestamp: 0,
+      block_number: 0,
+    },
     TreasurePosition: {
       fieldOrder: ["player", "vec"],
       player: "",
@@ -187,12 +204,6 @@ const schema: Schema = {
         starting_block: 0,
         walls: [],
       },
-      timestamp: 0,
-      block_number: 0,
-    },
-    Warning__FastWin: {
-      fieldOrder: ["player", "timestamp", "block_number"],
-      player: "",
       timestamp: 0,
       block_number: 0,
     },
@@ -223,8 +234,8 @@ export type {
   DirectionsAvailable,
   Position,
   StartGame,
-  Warning__FastWin,
   WinGame,
+  UpdateWorld,
   TreasurePosition,
   Moved,
   Vec2,
