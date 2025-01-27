@@ -7,10 +7,10 @@ interface GridProps {
 }
 
 export const Grid = ({ position, treasure, walls }: GridProps) => {
-  const gridSize = 20;
+  const gridSize = 15;
 
   return (
-    <div className="grid grid-cols-20 gap-0 w-[400px] h-[400px] bg-gray-800 border border-gray-600">
+    <div className="grid grid-cols-15 gap-0 w-[450px] h-[450px] bg-gray-800 border border-gray-600">
       {Array.from({ length: gridSize * gridSize }).map((_, index) => {
         const x = index % gridSize;
         const y = Math.floor(index / gridSize);

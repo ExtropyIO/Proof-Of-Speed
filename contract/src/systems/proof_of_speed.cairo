@@ -1,6 +1,6 @@
 pub mod proof_of_speed {
     use starknet::{ContractAddress, get_block_number};
-    use dojo_starter::models::{Vec2, Grid, Direction};
+    use dojo_starter::models::{Vec2, Direction};
     use dojo::event::EventStorage;
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::world::WorldStorage;
@@ -10,7 +10,7 @@ pub mod proof_of_speed {
     pub struct StartGame {
         #[key]
         pub player: ContractAddress,
-        pub grid: Grid,
+        pub entity_positions: Array<Vec2>,
         pub timestamp: u64,
         pub block_number: u64,
     }
@@ -34,11 +34,22 @@ pub mod proof_of_speed {
         pub block_number: u64,
     }
 
-    fn start_game(ref world: WorldStorage, player: ContractAddress, grid: Grid) {
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct UpdateWorld {
+        #[key]
+        pub player: ContractAddress,
+        pub current_state: felt252,
+        pub new_state: felt252,
+        pub timestamp: u64,
+        pub block_number: u64,
+    }
+
+    fn start_game(ref world: WorldStorage, player: ContractAddress, entity_positions: Array<Vec2>) {
         let timestamp = get_block_number();
         let block_number = get_block_number();
 
-        world.emit_event(@StartGame { player, grid, timestamp, block_number, });
+        world.emit_event(@StartGame { player, entity_positions, timestamp, block_number });
     }
 
     fn move_player(ref world: WorldStorage, player: ContractAddress, direction: Direction) {
@@ -53,5 +64,15 @@ pub mod proof_of_speed {
         let block_number = get_block_number();
 
         world.emit_event(@WinGame { player, timestamp, block_number });
+    }
+
+    fn update_world(
+        ref world: WorldStorage, player: ContractAddress, current_state: felt252, new_state: felt252
+    ) {
+        let timestamp = get_block_number();
+        let block_number = get_block_number();
+
+        world
+            .emit_event(@UpdateWorld { player, current_state, new_state, timestamp, block_number });
     }
 }

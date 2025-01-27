@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x4500f0488753027421fbbee2c4bad7f408a9d77de4d6459a00f7ed588a8cf35",
-      "class_hash": "0x3a78b2d23bbd2f2caff28a4c095c571e5c701ae59fb0f6bef385a6c5c4cda9",
+      "address": "0x72a9681779ad874e00bf1b5f153fef7964e684d1122051a3aaff7a492e27e65",
+      "class_hash": "0x792ee3c764460fae269d23876c5ee0dfed4a5048dc47010ce496f061a7ff627",
       "abi": [
         {
           "type": "impl",
@@ -1337,6 +1337,34 @@
           ]
         },
         {
+          "type": "struct",
+          "name": "dojo_starter::models::Vec2",
+          "members": [
+            {
+              "name": "x",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "y",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "dojo_starter::systems::actions::IActions",
           "items": [
@@ -1357,6 +1385,26 @@
                 }
               ],
               "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "place_treasure",
+              "inputs": [
+                {
+                  "name": "player",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "new_position",
+                  "type": "dojo_starter::models::Vec2"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::bool"
+                }
+              ],
               "state_mutability": "external"
             }
           ]
@@ -1482,6 +1530,7 @@
       "systems": [
         "spawn",
         "move",
+        "place_treasure",
         "upgrade"
       ]
     }
@@ -1527,9 +1576,15 @@
     },
     {
       "members": [],
-      "class_hash": "0x2daa1a5a8d9cb773c02eb45795e0a8049f4ffd8dbae86a833d5c8c6c7cd6023",
+      "class_hash": "0x5453039e03ed780b2918e098cd23c70f2a95082f05186588775263e7ba429a2",
       "tag": "dojo_starter-StartGame",
       "selector": "0x9e56e5ce2211b059281cc86f37df44d810ee735db1fad373dec140acfcbb1"
+    },
+    {
+      "members": [],
+      "class_hash": "0x3795776db56455e05c4a6501a759c30a3ca243d4c09b63097012615d9f3af45",
+      "tag": "dojo_starter-UpdateWorld",
+      "selector": "0x492db783225faa0097e42a418f94d93799573fbe8b7e4bf6e3f29fde1028b5a"
     },
     {
       "members": [],

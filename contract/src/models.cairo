@@ -95,6 +95,24 @@ impl Vec2Impl of Vec2Trait {
     fn is_equal(self: Vec2, b: Vec2) -> bool {
         self.x == b.x && self.y == b.y
     }
+
+    fn manhattan_distance(self: Vec2, other: Vec2) -> u32 {
+        let dx = if self.x > other.x {
+            self.x - other.x
+        } else {
+            other.x - self.x
+        };
+        let dy = if self.y > other.y {
+            self.y - other.y
+        } else {
+            other.y - self.y
+        };
+        dx + dy
+    }
+
+    fn is_valid_treasure_position(self: Vec2, spawn_position: Vec2, min_distance: u32) -> bool {
+        self.manhattan_distance(spawn_position) >= min_distance
+    }
 }
 
 #[cfg(test)]
