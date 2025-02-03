@@ -75,6 +75,12 @@ interface TreasurePosition {
   vec: Vec2;
 }
 
+interface PowerupPosition {
+  fieldOrder: string[];
+  player: string;
+  vec: Vec2;
+}
+
 /**
  * Interface representing a player's position in the game world.
  */
@@ -120,6 +126,7 @@ type Schema = {
     UpdateWorld: UpdateWorld;
     StartGame: StartGame;
     TreasurePosition: TreasurePosition;
+    PowerupPosition: PowerupPosition;
     Moved: Moved;
     Grid: Grid;
   };
@@ -135,6 +142,7 @@ enum Models {
   WinGame = "dojo_starter-WinGame",
   UpdateWorld = "dojo_starter-UpdateWorld",
   TreasurePosition = "dojo_starter-TreasurePosition",
+  PowerupPosition = "dojo_starter-PowerupPosition",
   StartGame = "dojo_starter-StartGame",
   Grid = "dojo_starter-Grid",
   Moved = "dojo_starter-Moved",
@@ -191,6 +199,11 @@ const schema: Schema = {
       player: "",
       vec: { x: 0, y: 0 },
     },
+    PowerupPosition: {
+      fieldOrder: ["player", "vec"],
+      player: "",
+      vec: { x: 0, y: 0 },
+    },
     StartGame: {
       fieldOrder: ["player", "grid", "timestamp", "block_number"],
       player: "",
@@ -237,6 +250,7 @@ export type {
   WinGame,
   UpdateWorld,
   TreasurePosition,
+  PowerupPosition,
   Moved,
   Vec2,
   Grid,

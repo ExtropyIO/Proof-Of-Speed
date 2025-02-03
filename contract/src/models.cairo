@@ -8,6 +8,7 @@ pub struct Moves {
     pub remaining: u8,
     pub last_direction: Direction,
     pub can_move: bool,
+    pub powerup_turns_left: u8,
 }
 
 #[derive(Drop, Serde, Debug)]
@@ -38,6 +39,15 @@ pub struct TreasurePosition {
     #[key]
     pub player: ContractAddress,
     pub vec: Vec2,
+}
+
+#[derive(Copy, Drop, Serde, Debug)]
+#[dojo::model]
+pub struct PowerupPosition {
+    #[key]
+    pub player: ContractAddress,
+    pub vec: Vec2,
+    pub picked: bool,
 }
 
 #[derive(Drop, Serde, Debug)]

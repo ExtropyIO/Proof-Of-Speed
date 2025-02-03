@@ -1,12 +1,18 @@
-import { Position, TreasurePosition, Vec2 } from "../bindings.ts";
+import {
+  Position,
+  PowerupPosition,
+  TreasurePosition,
+  Vec2,
+} from "../bindings.ts";
 
 interface GridProps {
   position: Position | undefined;
   treasure: TreasurePosition | undefined;
+  powerup: PowerupPosition | undefined;
   walls: Array<Vec2> | undefined;
 }
 
-export const Grid = ({ position, treasure, walls }: GridProps) => {
+export const Grid = ({ position, treasure, powerup, walls }: GridProps) => {
   const gridSize = 15;
 
   return (
@@ -18,6 +24,8 @@ export const Grid = ({ position, treasure, walls }: GridProps) => {
           position?.vec?.x === x && position?.vec?.y === y;
         const isTreasurePosition =
           treasure?.vec?.x === x && treasure?.vec?.y === y;
+        const isPowerupPosition =
+          powerup?.vec?.x === x && powerup?.vec?.y === y;
         const isWall = walls?.some((wall) => wall.x === x && wall.y === y);
 
         return (
@@ -33,6 +41,11 @@ export const Grid = ({ position, treasure, walls }: GridProps) => {
             {isTreasurePosition && (
               <div className="absolute inset-[15%] text-yellow-500 flex items-center justify-center">
                 💎
+              </div>
+            )}
+            {isPowerupPosition && (
+              <div className="absolute inset-[25%] text-yellow-500 flex items-center justify-center text-2xl">
+                ⭐
               </div>
             )}
           </div>

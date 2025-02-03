@@ -45,6 +45,17 @@ pub mod proof_of_speed {
         pub block_number: u64,
     }
 
+    #[derive(Copy, Drop, Serde)]
+    #[dojo::event]
+    pub struct AddCheckpoint {
+        #[key]
+        pub player: ContractAddress,
+        pub position: Vec2,
+        pub checkpoint: felt252,
+        pub timestamp: u64,
+        pub block_number: u64,
+    }
+
     fn start_game(ref world: WorldStorage, player: ContractAddress, entity_positions: Array<Vec2>) {
         let timestamp = get_block_number();
         let block_number = get_block_number();
@@ -57,6 +68,15 @@ pub mod proof_of_speed {
         let block_number = get_block_number();
 
         world.emit_event(@Moved { player, direction, timestamp, block_number });
+    }
+
+    fn add_checkpoint(
+        ref world: WorldStorage, player: ContractAddress, position: Vec2, checkpoint: felt252
+    ) {
+        let timestamp = get_block_number();
+        let block_number = get_block_number();
+
+        world.emit_event(@AddCheckpoint { player, position, checkpoint, timestamp, block_number });
     }
 
     fn win_game(ref world: WorldStorage, player: ContractAddress) {

@@ -179,6 +179,9 @@ function App({
               .entity("TreasurePosition", (e) => {
                 e.is("player", addAddressPadding(account.account.address));
               })
+              .entity("PowerupPosition", (e) => {
+                e.is("player", addAddressPadding(account.account.address));
+              })
               .entity("Grid", (e) => {
                 e.is("player", addAddressPadding(account.account.address));
               })
@@ -213,9 +216,13 @@ function App({
         await sdk.getEntities({
           query: new QueryBuilder<Schema>()
             .namespace("dojo_starter", (n) =>
-              n.entity("TreasurePosition", (e) =>
-                e.eq("player", addAddressPadding(account.account.address))
-              )
+              n
+                .entity("TreasurePosition", (e) =>
+                  e.eq("player", addAddressPadding(account.account.address))
+                )
+                .entity("PowerupPosition", (e) =>
+                  e.eq("player", addAddressPadding(account.account.address))
+                )
             )
             .build(),
           callback: (resp) => {
@@ -250,6 +257,7 @@ function App({
   const moves = useModel(entityId, Models.Moves);
   const position = useModel(entityId, Models.Position);
   const treasurePosition = useModel(entityId, Models.TreasurePosition);
+  const powerupPosition = useModel(entityId, Models.PowerupPosition);
   const grid = useModel(entityId, Models.Grid);
 
   return (
@@ -296,6 +304,7 @@ function App({
           <Grid
             position={position}
             treasure={treasurePosition}
+            powerup={powerupPosition}
             walls={grid?.walls}
           />
         </div>

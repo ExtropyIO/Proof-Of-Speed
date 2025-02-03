@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x72a9681779ad874e00bf1b5f153fef7964e684d1122051a3aaff7a492e27e65",
-      "class_hash": "0x792ee3c764460fae269d23876c5ee0dfed4a5048dc47010ce496f061a7ff627",
+      "address": "0x60a7eb005eb35d4281838f03bc5bc1c722617ac1b71204453b76223e77b5836",
+      "class_hash": "0x509bb6f7903009e2cbede6154ebf3f726f47c6d4172cdd9492651dfd320af35",
       "abi": [
         {
           "type": "impl",
@@ -1550,7 +1550,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x70edf8f3be0b118e78f856f3ea9ebb652cba3684abaf7f299bfa6f93bf907c9",
+      "class_hash": "0xce9d8c49d3f1ec3e2cff417628e071897a561b1e23d80ab0d11e5b195c5af7",
       "tag": "dojo_starter-Moves",
       "selector": "0x2a29373f1af8348bd366a990eb3a342ef2cbe5e85160539eaca3441a673f468"
     },
@@ -1562,12 +1562,24 @@
     },
     {
       "members": [],
+      "class_hash": "0x40e4c27c5b811e27a670aece63c4b7b186a18691c885108653a05afb69e8920",
+      "tag": "dojo_starter-PowerupPosition",
+      "selector": "0x39f573f75646bc04d590cdd9d95c077b2bfd5a4e0270577d18df9e4f67dcb20"
+    },
+    {
+      "members": [],
       "class_hash": "0x6bdd5caafa77eb87ec6a28b096dd2c4dd2300ad129ddf25cef89b1d66e6ff8d",
       "tag": "dojo_starter-TreasurePosition",
       "selector": "0x7caebbd8457d96ef18e3d1f50610d86ffd20f5d6780cb8b514d7f7aab5c4d0e"
     }
   ],
   "events": [
+    {
+      "members": [],
+      "class_hash": "0x4d303e5d8d4b9d300caf7304923b429dd358839c4b8e3ac6efa378a92d169f2",
+      "tag": "dojo_starter-AddCheckpoint",
+      "selector": "0x204b282c49102254a52c84fb282eafa4bd88c49ce24bd859d58a2c5fd14839d"
+    },
     {
       "members": [],
       "class_hash": "0x70a7526316719bcf9ea880494566fa4dac6a5c907b3abd81abea14b69478f85",

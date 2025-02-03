@@ -4,7 +4,9 @@ use poseidon::poseidon_hash_span;
 use traits::Into;
 use starknet::ContractAddress;
 use dojo_starter::models::{Direction, Position, Grid, Vec2, Vec2Trait};
-use super::proof_of_speed::proof_of_speed::{start_game, move_player, win_game, update_world};
+use super::proof_of_speed::proof_of_speed::{
+    start_game, move_player, win_game, update_world, add_checkpoint
+};
 
 
 #[starknet::interface]
@@ -18,13 +20,15 @@ trait IActions<T> {
 pub mod actions {
     use starknet::{ContractAddress, get_caller_address, get_block_number};
     use starknet::contract_address_const;
-    use dojo_starter::models::{Vec2, Moves, DirectionsAvailable, TreasurePosition, Grid};
+    use dojo_starter::models::{
+        Vec2, Moves, DirectionsAvailable, TreasurePosition, Grid, PowerupPosition
+    };
 
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
 
     use super::{IActions, Direction, Position, next_position, Vec2Trait, hash_vec2_array};
-    use super::{start_game, move_player, win_game, update_world};
+    use super::{start_game, move_player, win_game, update_world, add_checkpoint};
 
     #[derive(Copy, Drop, Serde)]
     struct Wall {
@@ -100,6 +104,10 @@ pub mod actions {
                 treasure_position.vec
             };
 
+            let mut powerup_position: PowerupPosition = world.read_model(player);
+            powerup_position.vec = Vec2 { x: 7, y: 6 };
+            powerup_position.picked = false;
+
             let new_position = Position { player, vec: new_position_vector };
             let new_treasure_position = TreasurePosition { player, vec: treasure_position_vector };
 
@@ -122,10 +130,15 @@ pub mod actions {
 
             world.write_model(@new_position);
             world.write_model(@new_treasure_position);
+            world.write_model(@powerup_position);
             world.write_model(@grid);
 
             let moves = Moves {
-                player, remaining: 100, last_direction: Direction::None(()), can_move: true
+                player,
+                remaining: 100,
+                last_direction: Direction::None(()),
+                can_move: true,
+                powerup_turns_left: 0
             };
 
             world.write_model(@moves);
@@ -146,32 +159,53 @@ pub mod actions {
             let mut world = self.world_default();
             let player = get_caller_address();
 
-            let position: Position = world.read_model(player);
-            let treasure_position: TreasurePosition = world.read_model(player);
             let mut moves: Moves = world.read_model(player);
+            let position: Position = world.read_model(player);
+            let mut powerup: PowerupPosition = world.read_model(player);
             let grid: Grid = world.read_model(player);
 
-            let next = next_position(position, direction);
+            if !moves.can_move {
+                return;
+            }
 
-            if !is_wall(@grid.walls, next.vec) {
-                // Only update position if there's no wall
+            // Check if player is on powerup
+            if position.vec.is_equal(powerup.vec) && !powerup.picked {
+                powerup.picked = true;
+                moves.powerup_turns_left = 3;
+                world.write_model(@powerup);
+                add_checkpoint(ref world, player, position.vec, 'POWER_UP');
+            }
+
+            // Calculate next position using powerup if active
+            let has_active_powerup = moves.powerup_turns_left > 0;
+            let next = next_position(position, direction, has_active_powerup);
+
+            // Validate move within grid bounds
+            if next.vec.x < grid.width && next.vec.y < grid.height {
+                // Update position
                 world.write_model(@next);
-
-                moves.remaining -= 1;
-                moves.last_direction = direction;
-                world.write_model(@moves);
-
                 move_player(ref world, player, direction);
 
-                if (next.vec.x == treasure_position.vec.x
-                    && next.vec.y == treasure_position.vec.y) {
+                // Update moves and powerup status
+                moves.remaining -= 1;
+                moves.last_direction = direction;
+                if moves.powerup_turns_left > 0 {
+                    moves.powerup_turns_left -= 1;
+                }
+                world.write_model(@moves);
+
+                // Check win condition
+                let treasure_position: TreasurePosition = world.read_model(player);
+                if next.vec.is_equal(treasure_position.vec) {
                     win_game(ref world, player);
                 }
             } else {
-                // still count the move
+                // Invalid move, still count it
                 moves.remaining -= 1;
                 moves.last_direction = direction;
-
+                if moves.powerup_turns_left > 0 {
+                    moves.powerup_turns_left -= 1;
+                }
                 world.write_model(@moves);
             }
         }
@@ -220,13 +254,19 @@ pub mod actions {
     }
 }
 
-fn next_position(mut position: Position, direction: Direction) -> Position {
+fn next_position(mut position: Position, direction: Direction, has_powerup: bool) -> Position {
+    let movement = if has_powerup {
+        2
+    } else {
+        1
+    };
+
     match direction {
         Direction::None => { return position; },
-        Direction::Left => { position.vec.x -= 1; },
-        Direction::Right => { position.vec.x += 1; },
-        Direction::Up => { position.vec.y -= 1; },
-        Direction::Down => { position.vec.y += 1; },
+        Direction::Left => { position.vec.x -= movement; },
+        Direction::Right => { position.vec.x += movement; },
+        Direction::Up => { position.vec.y -= movement; },
+        Direction::Down => { position.vec.y += movement; },
     };
     position
 }
