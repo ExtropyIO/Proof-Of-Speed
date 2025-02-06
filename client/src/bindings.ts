@@ -79,6 +79,7 @@ interface PowerupPosition {
   fieldOrder: string[];
   player: string;
   vec: Vec2;
+  picked: boolean;
 }
 
 /**
@@ -200,9 +201,10 @@ const schema: Schema = {
       vec: { x: 0, y: 0 },
     },
     PowerupPosition: {
-      fieldOrder: ["player", "vec"],
+      fieldOrder: ["player", "vec", "picked"],
       player: "",
       vec: { x: 0, y: 0 },
+      picked: false,
     },
     StartGame: {
       fieldOrder: ["player", "grid", "timestamp", "block_number"],

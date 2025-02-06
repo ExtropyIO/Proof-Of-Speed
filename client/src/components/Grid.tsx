@@ -43,7 +43,7 @@ export const Grid = ({ position, treasure, powerup, walls }: GridProps) => {
                 💎
               </div>
             )}
-            {isPowerupPosition && (
+            {isPowerupPosition && !powerup?.picked && (
               <div className="inset-[25%] text-yellow-500 flex items-center justify-center">
                 ⭐
               </div>
